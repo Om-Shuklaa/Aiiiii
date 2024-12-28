@@ -1,0 +1,45 @@
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import openai
+
+# OpenAI API Key
+openai.api_key = "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"
+
+# Telegram Bot Token
+TELEGRAM_BOT_TOKEN = "7748601455:AAEiR2Z-ClmnZiNTxgFMve1Dps82l_ME410"
+
+# OpenAI se response lena
+def chat_with_openai(prompt):
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # Ya "gpt-4" agar advanced chahiye
+            prompt=prompt,
+            max_tokens=150
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        return "Kuch galat ho gaya, kripya dubara try karein."
+
+# Start command ka handler
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text("Namaste! Main ek AI bot hoon. Aap mujhe koi bhi sawaal poochh sakte hain.")
+
+# Message handler
+def handle_message(update: Update, context: CallbackContext):
+    user_message = update.message.text
+    bot_response = chat_with_openai(user_message)
+    update.message.reply_text(bot_response)
+
+# Main function
+def main():
+    updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
+
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
